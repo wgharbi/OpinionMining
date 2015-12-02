@@ -12,7 +12,7 @@ import string
 from nltk.corpus import stopwords
 
 data, labels = lf.loadLabeled("./train")
-
+#l = cf.computelength(data)
 train = ct.removehtml(data)
 
 punctuation = set(string.punctuation)
