@@ -12,14 +12,14 @@ def loadLabeled(path):
 	for subdir, dirs, files in os.walk(rootdirPOS):
 		
 		for file in files:
-			with open(rootdirPOS+"/"+file, 'r') as content_file:
+			with open(rootdirPOS+"/"+file, 'r', encoding="utf8") as content_file:
 				content = content_file.read() #assume that there are NO "new line characters"
 				data.append(content)
 	tmpc1=np.ones(len(data))
 	for subdir, dirs, files in os.walk(rootdirNEG):
 		
 		for file in files:
-			with open(rootdirNEG+"/"+file, 'r') as content_file:
+			with open(rootdirNEG+"/"+file, 'r', encoding="utf8") as content_file:
 				content = content_file.read() #assume that there are NO "new line characters"
 				data.append(content)
 	tmpc0=np.zeros(len(data)-len(tmpc1))
@@ -34,7 +34,7 @@ def loadUknown(path):
 	names=[]
 	for subdir, dirs, files in os.walk(rootdir):
 		for file in files:
-			with open(rootdir+"/"+file, 'r') as content_file:
+			with open(rootdir+"/"+file, 'r', encoding="utf8") as content_file:
 				content = content_file.read() #assume that there are NO "new line characters"
 				data.append(content)
 				names.append(file.split(".")[0])
