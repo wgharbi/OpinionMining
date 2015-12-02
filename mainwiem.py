@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
-from sklearn.naive_bayes import MultinomialNB
+
 from nltk.stem.porter import PorterStemmer
 from sklearn.cross_validation import train_test_split
 import cleantext as ct
@@ -11,6 +11,7 @@ from nltk import word_tokenize
 import string
 from nltk.corpus import stopwords
 
+#%% Pre-process the data
 data, labels = lf.loadLabeled("./train")
 #l contains the length of each review
 l = ct.computelength(data)
@@ -20,6 +21,8 @@ punctuation = set(string.punctuation)
 stemmer = PorterStemmer()
 data2=[]
 stop = stopwords.words('english')
+
+#%% Create a stemmed tokenized - dictionnary
 for review in train: 
 	review = "".join([w for w in review.lower() if (w not in punctuation)])
 	words = word_tokenize(review)
@@ -35,6 +38,8 @@ for review in train:
 
 data = data2
 labels = labels
+
+#%% Fit a Naive Bayes Model
 
 from time import time
 t0 = time()
@@ -67,6 +72,7 @@ compute the roc curve and the area under curve
 
 """
 from sklearn.metrics import roc_curve, auc
+
 
 fpr, tpr, thresholds = roc_curve(labels_test, y_score[:,1])
 
