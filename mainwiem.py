@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
@@ -12,7 +12,8 @@ import string
 from nltk.corpus import stopwords
 
 data, labels = lf.loadLabeled("./train")
-#l = cf.computelength(data)
+#l contains the length of each review
+l = ct.computelength(data)
 train = ct.removehtml(data)
 
 punctuation = set(string.punctuation)
@@ -85,3 +86,4 @@ plt.title(' Receiver operating characteristic example')
 plt.legend(loc ='lower right')
 plt.show()
 
+np.argsort(clf.coef_[i])[-10:]
