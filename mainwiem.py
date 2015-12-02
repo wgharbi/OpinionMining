@@ -50,22 +50,40 @@ tfidf_matrix = tfidf_vectorizer.fit_transform(data)
 print "size of the matrix", tfidf_matrix.shape
 
 data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42) 
-
+###########################################################################################
+#Trying a Multinomial Naive Bayes
 from sklearn.naive_bayes import MultinomialNB
 clf = MultinomialNB(alpha = .01)
 y_score = clf.fit(data_train, labels_train)
 labels_predicted= clf.predict(data_test)
 t1=time() -t0
-print "-------------------Vectorizing and fitting the model took %s------------------" %t1
+print "-------------------Vectorizing and fitting the MNB took %s------------------" %t1
 from sklearn.metrics import classification_report
 print "classification report"
 print classification_report(labels_test, labels_predicted)
-
-
 from sklearn.metrics import accuracy_score
 print "the accuracy score is", accuracy_score(labels_test, labels_predicted)
+############################################################################################
+#Trying a linear SVC
+from sklearn.svm import LinearSVC
+clf = LinearSVC(C=1.0)
+y_score = clf.fit(data_train, labels_train)
+labels_predicted= clf.predict(data_test)
+t2=time() -t1
+print "-------------------Vectorizing and fitting the linear SVC took %s------------------" %t1
+print "classification report"
+print classification_report(labels_test, labels_predicted)
 
-
+from sklearn.grid_search import GridSearchCV
+svc = GridSearchCV( LinearSVC(),  cv = 5, param_grid={"C":np.logspace(-2, 2, 5)})
+svc.fit(data_train, labels_train)
+print "best parameter", svc.best_params_
+labels_predicted= svc.predict(data_test)
+print "classification report"
+print classification_report(labels_test, labels_predicted)
+from sklearn.metrics import accuracy_score
+print "the accuracy score is", accuracy_score(labels_test, labels_predicted)
+#the accuracy score is 0.8783 for svc and 0.83 for NB
 
 """
 compute the roc curve and the area under curve 
