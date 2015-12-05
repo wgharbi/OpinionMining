@@ -41,16 +41,51 @@ def stemTokenize(data):
     stop = stopwords.words('english')
     
     for review in data: 
-	review = "".join([w for w in review.lower() if (w not in punctuation)])
-	words = word_tokenize(review)
-	word_list =[]
-	for word in words: 
-		if word not in stop:
-			word=stemmer.stem(word)
-			word_list.append(word)
+        review = "".join([w for w in review.lower() if (w not in punctuation)])
+        words = word_tokenize(review)
+        word_list =[]
+        for word in words: 
+            if word not in stop:
+                word=stemmer.stem(word)
+                word_list.append(word)
 
-	review = " ".join(word_list)
-
-	data2.append(review)
+        review = " ".join(word_list)
+        data2.append(review)
 
     return data2
+    
+    
+#Calculates the weights transformation for NBSVM
+def nbsvmWeights(data,labels,alpha):
+    import scipy.sparse as sp
+    import numpy as np
+    
+    nb_doc, voc_length = data.shape
+    pos_idx=[labels==1][0].astype(int)
+    neg_idx=[labels==0][0].astype(int)
+    #Store the indicator vectors in sparse format to accelerate the computations
+    pos_idx=sp.csr_matrix(pos_idx)
+    neg_idx=sp.csr_matrix(neg_idx)
+    #Use sparse format dot product to get a weightning vector stored in sparse format
+    alpha_vec=sp.csr_matrix(alpha*np.ones(voc_length))
+    p = (alpha_vec + pos_idx.dot(data)) 
+    norm_p = p.sum()
+    p = p.multiply(1/norm_p)
+    print p.toarray()
+    q = (alpha_vec + neg_idx.dot(data))
+    norm_q = q.sum()
+    q = q.multiply(1/norm_q)
+    print q.toarray()
+    
+    ratio = sp.csr_matrix(np.log((p.multiply(q.power(-1.0))).data))
+    print ratio.toarray()
+    
+    
+    return p,q,ratio
+    
+#Calculates 
+
+    
+    
+    
+    

@@ -35,8 +35,10 @@ train = ct.removehtml(data)
 #Create the dictionnary
 data=ct.stemTokenize(train)  
 
-#Compute tf-idf including n_grams of size 2
-tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,2))
+#Compute tf-idf including n_grams of size 2 
+tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,2), binary=False)
+#HUGO : j'ai testé avec une tf-idf "binarisée" pour voir si cela permettait une ammélioration du score, ce qui n'est pas le cas
+
 tfidf_matrix = tfidf_vectorizer.fit_transform(data)
 
 #tfidf_matrix = tfidf_matrix.toarray()
@@ -116,7 +118,7 @@ for i in range(nb_models) :
     fpr[i], tpr[i], _ = roc_curve(labels_test, labels_predicted[:,i])
     roc_auc[i] = auc(fpr[i], tpr[i])
 
-print "area under the ROC Curve", roc_auc
+print "area under the ROC Curves", roc_auc
 
 for i in range(nb_models) :
     name=model_names[i]
