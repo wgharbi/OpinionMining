@@ -27,3 +27,30 @@ def computelength(data):
 		l = len(comment)
 		length.append(l)
 	return length
+
+#Create a stemmed tokenized - dictionnary from a corpus
+def stemTokenize(data):
+    from nltk.stem.porter import PorterStemmer
+    from nltk import word_tokenize	
+    import string
+    from nltk.corpus import stopwords
+
+    punctuation = set(string.punctuation)
+    stemmer = PorterStemmer()
+    data2=[]
+    stop = stopwords.words('english')
+    
+    for review in data: 
+	review = "".join([w for w in review.lower() if (w not in punctuation)])
+	words = word_tokenize(review)
+	word_list =[]
+	for word in words: 
+		if word not in stop:
+			word=stemmer.stem(word)
+			word_list.append(word)
+
+	review = " ".join(word_list)
+
+	data2.append(review)
+
+    return data2
