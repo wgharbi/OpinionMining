@@ -39,10 +39,16 @@ data=ct.stemTokenize(train)
 tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,2), binary=False)
 #HUGO : j'ai testé avec une tf-idf "binarisée" pour voir si cela permettait une ammélioration du score, ce qui n'est pas le cas
 
+#Compute a count_vectorizer including n_grams of size 2
+count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
+
+
 tfidf_matrix = tfidf_vectorizer.fit_transform(data)
+count_matrix = count_vect.fit_transform(data)
 
 #tfidf_matrix = tfidf_matrix.toarray()
 print "size of the matrix : ", tfidf_matrix.shape
+
 
 
 
@@ -50,8 +56,9 @@ print "size of the matrix : ", tfidf_matrix.shape
 
 #define test set and traing set
 data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42)
+data_train2, data_test2, labels_train2, labels_test2 = train_test_split(count_matrix, labels, test_size = 0.4, random_state  =42)
 #Fix the number of models to train 
-nb_models = 3
+nb_models = 4
 model_names=[]
 labels_predicted = np.zeros((len(labels_test),nb_models))
 
@@ -103,6 +110,23 @@ print "classification report"
 print classification_report(labels_test, labels_predicted[:,2])
 print "the accuracy score is :", accuracy_score(labels_test, labels_predicted[:,2])
 
+#%% Fit 4th model : NBSVM
+from sklearn.svm import LinearSVC
+model_names.append("NBSVM")
+
+#HUGO : la partie "interpolation" grâce au paramètre beta n'est pas encore implémentée
+#Du coup ici c'est comme si on entraine avec beta=1
+
+t1 = time()
+clf4 = LinearSVC(C=1)
+data_train2=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
+y_score4 = clf4.fit(data_train, labels_train)
+labels_predicted[:,3]= clf4.predict(data_test2)
+t2=time() -t1
+print "-------------------Vectorizing and fitting the NBSVM took %s"%t2,"sec---------------"
+print "classification report"
+print classification_report(labels_test, labels_predicted[:,3])
+print "the accuracy score is :", accuracy_score(labels_test, labels_predicted[:,3])
 
 #%%Compute the ROC curve of all models learnt
 """

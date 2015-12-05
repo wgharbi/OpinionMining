@@ -56,9 +56,10 @@ def stemTokenize(data):
     
     
 #Calculates the weights transformation for NBSVM
-def nbsvmWeights(data,labels,alpha):
+def nbsvmMatrix(data,labels,alpha):
     import scipy.sparse as sp
     import numpy as np
+    from sklearn.preprocessing import binarize
     
     nb_doc, voc_length = data.shape
     pos_idx=[labels==1][0].astype(int)
@@ -71,19 +72,23 @@ def nbsvmWeights(data,labels,alpha):
     p = (alpha_vec + pos_idx.dot(data)) 
     norm_p = p.sum()
     p = p.multiply(1/norm_p)
-    print p.toarray()
+    #print p.toarray()
     q = (alpha_vec + neg_idx.dot(data))
     norm_q = q.sum()
     q = q.multiply(1/norm_q)
-    print q.toarray()
+    #print q.toarray()
     
     ratio = sp.csr_matrix(np.log((p.multiply(q.power(-1.0))).data))
-    print ratio.toarray()
+    #print ratio.toarray()
     
+    #We need now to recompute "f", our binarized word counter
+    f_hat = binarize(data, threshold = 0.0)
+    f_tilde = f_hat.multiply(ratio)
     
-    return p,q,ratio
+    return f_tilde
     
 #Calculates 
+    
 
     
     
