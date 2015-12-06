@@ -82,7 +82,8 @@ def nbsvmMatrix(data,labels,alpha):
     #print ratio.toarray()
     
     #We need now to recompute "f", our binarized word counter
-    f_hat = binarize(data, threshold = 0.0)
+    #f_hat = binarize(data, threshold = 0.0)
+    f_hat=data
     f_tilde = f_hat.multiply(ratio)
     
     return f_tilde

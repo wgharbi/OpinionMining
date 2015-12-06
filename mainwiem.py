@@ -57,58 +57,29 @@ print "size of the matrix : ", tfidf_matrix.shape
 #define test set and traing set
 data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42)
 data_train2, data_test2, labels_train2, labels_test2 = train_test_split(count_matrix, labels, test_size = 0.4, random_state  =42)
+data_train2=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
 #Fix the number of models to train 
-nb_models = 4
+
 model_names=[]
-labels_predicted = np.zeros((len(labels_test),nb_models))
+labels_predicted = np.expand_dims(np.zeros(len(labels_test)),axis=1)
 
-
-#%% Fit first model : Multinomial Naive Bayes Model
-
-from sklearn.naive_bayes import MultinomialNB
+#%% Fit models
+from models import naiveBayes
 model_names.append("MultinomialNB")
+prediction = np.expand_dims(naiveBayes(data_train,labels_train,data_test,labels_test,show_infos=True),axis=1)
+labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 
-t0 = time()
-clf = MultinomialNB(alpha = .01)
-y_score = clf.fit(data_train, labels_train)
-labels_predicted[:,0]= clf.predict(data_test)
-t1=time() -t0
-print "-------------------Vectorizing and fitting the model took %s"%t1,"sec---------------"
-print ""
-print "classification report :"
-print classification_report(labels_test, labels_predicted[:,0])
-print "the accuracy score is :", accuracy_score(labels_test, labels_predicted[:,0])
-
-
-
-#%% Fit second model : SVC
-
-from sklearn.svm import LinearSVC
+from models import svc
 model_names.append("LinearSVC")
+prediction = np.expand_dims(svc(data_train,labels_train,data_test,labels_test,C=1,show_infos=True),axis=1)
+labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 
-t1 = time()
-clf2 = LinearSVC(C=1)
-y_score2 = clf2.fit(data_train, labels_train)
-labels_predicted[:,1]= clf2.predict(data_test)
-t2=time() -t1
-print "-------------------Vectorizing and fitting the linear SVC took %s"%t2,"sec---------------"
-print "classification report"
-print classification_report(labels_test, labels_predicted[:,1])
-print "the accuracy score is :", accuracy_score(labels_test, labels_predicted[:,1])
+from models import logRegression
+model_names.append("logRegression")
+prediction = np.expand_dims(logRegression(data_train,labels_train,data_test,labels_test,show_infos=True),axis=1)
+labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 
-#%% Fit third model : Logistic Regression
-from sklearn.linear_model import LogisticRegression
-model_names.append("Log-Regression")
 
-t1 = time()
-clf3 = LogisticRegression()
-y_score3 = clf3.fit(data_train, labels_train)
-labels_predicted[:,2]= clf3.predict(data_test)
-t2=time() -t1
-print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
-print "classification report"
-print classification_report(labels_test, labels_predicted[:,2])
-print "the accuracy score is :", accuracy_score(labels_test, labels_predicted[:,2])
 
 #%% Fit 4th model : NBSVM
 from sklearn.svm import LinearSVC
@@ -119,14 +90,16 @@ model_names.append("NBSVM")
 
 t1 = time()
 clf4 = LinearSVC(C=1)
-data_train2=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
-y_score4 = clf4.fit(data_train, labels_train)
-labels_predicted[:,3]= clf4.predict(data_test2)
+data_train2_transformed=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
+y_score4 = clf4.fit(data_train2_transformed, labels_train2)
+prediction = np.expand_dims(clf4.predict(data_test2),axis=1)
+labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 t2=time() -t1
-print "-------------------Vectorizing and fitting the NBSVM took %s"%t2,"sec---------------"
+print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
 print "classification report"
-print classification_report(labels_test, labels_predicted[:,3])
-print "the accuracy score is :", accuracy_score(labels_test, labels_predicted[:,3])
+print classification_report(labels_test2, prediction)
+print "the accuracy score is :", accuracy_score(labels_test2, prediction)
+
 
 #%%Compute the ROC curve of all models learnt
 """
@@ -138,6 +111,8 @@ from sklearn.metrics import roc_curve, auc
 fpr = dict()
 tpr = dict()
 roc_auc = dict()
+labels_predicted=labels_predicted[:,1:]
+nb_models = labels_predicted.shape[1]
 for i in range(nb_models) :
     fpr[i], tpr[i], _ = roc_curve(labels_test, labels_predicted[:,i])
     roc_auc[i] = auc(fpr[i], tpr[i])
