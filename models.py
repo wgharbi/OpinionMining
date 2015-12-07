@@ -74,26 +74,3 @@ def logRegression(data_train,labels_train,data_test,labels_test,show_infos):
         
     return labels_predicted
     
-#%% NBSVM
-def nbsvm(data_train,labels_train,data_test,labels_test,C,alpha,beta,show_infos):
-    from sklearn.svm import LinearSVC
-    import cleantext as ct
-    
-    #HUGO : la partie "interpolation" grâce au paramètre beta n'est pas encore implémentée
-    #Du coup ici c'est comme si on entraine avec beta=1
-    c=C
-    beta=1
-    t1 = time()
-    clf4 = LinearSVC(C=c)
-    data_train2=ct.nbsvmMatrix(data_train,labels_train,alpha=1)
-    y_score4 = clf4.fit(data_train2, labels_train)
-    labels_predicted = clf4.predict(data_test)
-    t2=time() -t1
-    
-    if(show_infos == True):
-        print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
-        print "classification report"
-        print classification_report(labels_test, labels_predicted)
-        print "the accuracy score is :", accuracy_score(labels_test, labels_predicted)
-        
-    return labels_predicted

@@ -8,6 +8,7 @@
 
 from bs4 import BeautifulSoup
 import unicodedata   
+import numpy as np
 
 
 #the following function removes the HTML tags from the comments
@@ -22,17 +23,21 @@ def removehtml(data):
 	return newdata
 
 def computelength(data):
-	length = []
-	for comment in data: 
-		l = len(comment)
-		length.append(l)
-	return length
+    length = []
+    for comment in data: 
+        l = len(comment)
+        length.append(l)
+    length = np.array(length)
+    length = np.expand_dims(length,axis=1)
+    return length
 
 def computeUpperCase(data):
     uppercase= []
     for comment in data: 
         l = sum(1 for c in comment if c.isupper())
         uppercase.append(l)
+    uppercase = np.array(uppercase)
+    uppercase = np.expand_dims(uppercase,axis=1)
     return uppercase
 
 def countexclamation(data):
@@ -40,13 +45,17 @@ def countexclamation(data):
     for comment in data: 
         l = sum(1 for c in comment if c =="!")
         exclamation.append(l)
-        return exclamation
+    exclamation = np.array(exclamation)
+    exclamation = np.expand_dims(exclamation,axis=1)
+    return exclamation
 
 def countquestionmark(data):
     questionmark  = []
     for comment in data: 
         l = sum(1 for c in comment if c =="?")
         questionmark.append(l)
+    questionmark = np.array(questionmark)
+    questionmark = np.expand_dims(questionmark,axis=1)
     return questionmark
 
 
@@ -107,7 +116,7 @@ def nbsvmMatrix(data,labels,alpha):
     print ratio.toarray()
     
     #We need now to recompute "f", our binarized word counter
-    f_hat = binarize(data, threshold = 0.0) #Binarized to 
+    f_hat = binarize(data, threshold = 0.0) #Binarized to enhance classification
     
     f_tilde = f_hat.multiply(ratio)
     

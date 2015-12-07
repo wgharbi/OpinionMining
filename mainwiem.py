@@ -15,6 +15,7 @@ from sklearn.cross_validation import train_test_split
 
 #Other
 from time import time
+import scipy.sparse as sp
 
 import matplotlib.pyplot as plt
 
@@ -24,10 +25,27 @@ import loadFiles as lf
 
 
 
-#%% Pre-process the data
+#%% Load the data and compute alternative features
 data, labels = lf.loadLabeled("./train")
 #l contains the length of each review
-l = ct.computelength(data)
+l = sp.computelength(data)
+l = sp.csr_matrix(l)
+
+#Count number of upper_case
+up = ct.computeUpperCase(data)
+up = sp.csr_matrix(up)
+
+
+#Count excalmations
+ex = sp.countexclamation(data)
+ex = sp.csr_matrix(ex)
+
+#Count question marks
+qu = sp.countquestionmark(data)
+qu = sp.csr_matrix(qu)
+
+
+#%%Pre process
 
 #Remove html tags
 train = ct.removehtml(data)
