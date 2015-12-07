@@ -45,7 +45,7 @@ count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
 
 tfidf_matrix = tfidf_vectorizer.fit_transform(data)
 count_matrix = count_vect.fit_transform(data)
-
+nbsvm_matrix = ct.nbsvmMatrix(count_matrix,labels,alpha=1)
 #tfidf_matrix = tfidf_matrix.toarray()
 print "size of the matrix : ", tfidf_matrix.shape
 
@@ -56,8 +56,8 @@ print "size of the matrix : ", tfidf_matrix.shape
 
 #define test set and traing set
 data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42)
-data_train2, data_test2, labels_train2, labels_test2 = train_test_split(count_matrix, labels, test_size = 0.4, random_state  =42)
-data_train2=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
+data_train2, data_test2, labels_train2, labels_test2 = train_test_split(nbsvm_matrix, labels, test_size = 0.4, random_state  =42)
+
 #Fix the number of models to train 
 
 model_names=[]
@@ -90,8 +90,7 @@ model_names.append("NBSVM")
 
 t1 = time()
 clf4 = LinearSVC(C=1)
-data_train2_transformed=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
-y_score4 = clf4.fit(data_train2_transformed, labels_train2)
+y_score4 = clf4.fit(data_train2, labels_train2)
 prediction = np.expand_dims(clf4.predict(data_test2),axis=1)
 labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 t2=time() -t1
