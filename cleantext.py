@@ -28,14 +28,39 @@ def computelength(data):
 		length.append(l)
 	return length
 
+def computeUpperCase(data):
+    uppercase= []
+    for comment in data: 
+        l = sum(1 for c in comment if c.isupper())
+        uppercase.append(l)
+    return uppercase
+
+def countexclamation(data):
+    exclamation = []
+    for comment in data: 
+        l = sum(1 for c in comment if c =="!")
+        exclamation.append(l)
+        return exclamation
+
+def countquestionmark(data):
+    questionmark  = []
+    for comment in data: 
+        l = sum(1 for c in comment if c =="?")
+        questionmark.append(l)
+    return questionmark
+
+
+
+
 #Create a stemmed tokenized - dictionnary from a corpus
 def stemTokenize(data):
     from nltk.stem.porter import PorterStemmer
-    from nltk import word_tokenize	
+    from nltk import word_tokenize  
     import string
     from nltk.corpus import stopwords
-
-    punctuation = set(string.punctuation)
+    punctuation = list(set(string.punctuation))
+    for a in ["!", "?", "/"]:
+        punctuation.remove(a)
     stemmer = PorterStemmer()
     data2=[]
     stop = stopwords.words('english')
@@ -43,13 +68,13 @@ def stemTokenize(data):
     for review in data: 
         review = "".join([w for w in review.lower() if (w not in punctuation)])
         words = word_tokenize(review)
-        word_list =[]
-        for word in words: 
-            if word not in stop:
-                word=stemmer.stem(word)
-                word_list.append(word)
+        #word_list =[]
+        #for word in words: 
+        #    if word not in stop:
+        #        word=stemmer.stem(word)
+        #        word_list.append(word)
 
-        review = " ".join(word_list)
+        #review = " ".join(word_list)
         data2.append(review)
 
     return data2
