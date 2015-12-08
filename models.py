@@ -74,3 +74,29 @@ def logRegression(data_train,labels_train,data_test,labels_test,show_infos):
         
     return labels_predicted
     
+def RNN(data_train, labels_train, data_test, labels_test, n_features):
+"""
+Adapted from Passage's sentiment.py at
+https://github.com/IndicoDataSolutions/Passage/blob/master/examples/sentiment.py
+License: MIT
+"""
+    import numpy as np
+    import pandas as pd
+
+    from passage.models import RNN
+    from passage.updates import Adadelta
+    from passage.layers import Embedding, GatedRecurrent, Dense
+    from passage.preprocessing import Tokenizer
+
+    layers = [
+        Embedding(size=128, n_features=n_features),
+        GatedRecurrent(size=128, activation='tanh', gate_activation='steeper_sigmoid', init='orthogonal', seq_output=False, p_drop=0.75),
+        Dense(size=1, activation='sigmoid', init='orthogonal')
+    ]
+    model = RNN(layers=layers, cost='bce', updater=Adadelta(lr=0.5))
+    tokenizer = Tokenizer(min_df=10)
+    X = tokenizer.fit_transform(data)
+    model.fit(X, labels, n_epochs=10)
+    predi = model.predit(data_test).flatten
+    labels_predicted = np.ones(len(data_test))
+    labels_predicted[predi<0.5] = 0
