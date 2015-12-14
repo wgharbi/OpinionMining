@@ -111,10 +111,9 @@ def nbsvmMatrix(data,labels,alpha):
     norm_q = q.sum()
     q = q.multiply(1/norm_q)
     print q.toarray()
-    
-    ratio = sp.csr_matrix(np.log((p.multiply(q.power(-1.0))).data))
-    print ratio.toarray()
-    
+    # j'ai enlevé la fonction power
+    ratio = sp.csr_matrix(np.log((p.multiply(sp.csr_matrix(np.expand_dims(q.toarray()[0]**(-1),axis=0)))).data))
+    print ratio.toarray()    
     #We need now to recompute "f", our binarized word counter
     f_hat = binarize(data, threshold = 0.0) #Binarized to enhance classification
     
