@@ -75,19 +75,20 @@ def logRegression(data_train,labels_train,data_test,labels_test,show_infos):
     return labels_predicted
     
 def RNN(data_train, labels_train, data_test, labels_test, n_features):
-"""
-Adapted from Passage's sentiment.py at
-https://github.com/IndicoDataSolutions/Passage/blob/master/examples/sentiment.py
-License: MIT
-"""
+        
+    """
+    Adapted from Passage's sentiment.py at
+    https://github.com/IndicoDataSolutions/Passage/blob/master/examples/sentiment.py
+    License: MIT
+    """ 
     import numpy as np
     import pandas as pd
-
+    
     from passage.models import RNN
     from passage.updates import Adadelta
     from passage.layers import Embedding, GatedRecurrent, Dense
     from passage.preprocessing import Tokenizer
-
+    
     layers = [
         Embedding(size=128, n_features=n_features),
         GatedRecurrent(size=128, activation='tanh', gate_activation='steeper_sigmoid', init='orthogonal', seq_output=False, p_drop=0.75),
@@ -100,3 +101,57 @@ License: MIT
     predi = model.predit(data_test).flatten
     labels_predicted = np.ones(len(data_test))
     labels_predicted[predi<0.5] = 0
+   
+    
+#%%
+from sklearn.base import BaseEstimator, TransformerMixin
+import scipy.sparse as sp
+from sklearn.preprocessing import binarize
+import numpy as np
+    
+class NBmatrix(BaseEstimator, TransformerMixin):
+   
+    
+    def __init__(self, alpha,bina,n_jobs):
+        self.alpha = alpha
+        self.bina = bina
+        self.n_jobs = 1
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X,y):
+        alpha = self.alpha
+        bina = self.bina
+        nb_doc, voc_length = X.shape
+        pos_idx=[y==1][0].astype(int)
+        neg_idx=[y==0][0].astype(int)
+        #Store the indicator vectors in sparse format to accelerate the computations
+        pos_idx=sp.csr_matrix(pos_idx.T)
+        neg_idx=sp.csr_matrix(neg_idx.T)
+        #Use sparse format dot product to get a weightning vector stored in sparse format
+        alpha_vec=sp.csr_matrix(alpha*np.ones(voc_length))
+        p = (alpha_vec + pos_idx.dot(X)) 
+        norm_p = p.sum()
+        p = p.multiply(1/norm_p)
+        print p.toarray()
+        q = (alpha_vec + neg_idx.dot(X))
+        norm_q = q.sum()
+        q = q.multiply(1/norm_q)
+        print q.toarray()
+        
+        ratio = sp.csr_matrix(np.log((p.multiply(q.power(-1.0))).data))
+        print ratio.toarray()
+        
+        #We need now to recompute "f", our binarized word counter
+        if(bina == True):
+            f_hat = binarize(X, threshold = 0.0)
+        else :
+            f_hat=X
+        
+        f_tilde = f_hat.multiply(ratio)
+        return f_tilde
+    
+    def fit_transform(self, X, y):
+        return self.transform(X,y)
+
