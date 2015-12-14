@@ -102,7 +102,7 @@ def RNN(data_train, labels_train, data_test, labels_test, n_features):
     labels_predicted = np.ones(len(data_test))
     labels_predicted[predi<0.5] = 0
     
-def SGD(data_train,labels_train,data_test,labels_test,show_infos):
+def StochasGD(data_train,labels_train,data_test,labels_test,show_infos):
     from sklearn.linear_model import SGDClassifier as SGD
     from sklearn import cross_validation    
 
@@ -121,8 +121,28 @@ def SGD(data_train,labels_train,data_test,labels_test,show_infos):
         print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
         
     return labels_predicted
+
+def RandomNbSGD(data_train,labels_train,data_test,labels_test,show_infos,n_estima=10):
+    from sklearn.ensemble import BaggingClassifier
+    from sklearn.linear_model import SGDClassifier as SGD
+    from sklearn import cross_validation
+
+    t1 = time()
+    base_model = SGD(loss = 'modified_huber')
+    # n_estimator = 100 pour perf max
+    clf = BaggingClassifier(base_estimator=base_model, n_estimators=n_estima)
+    y_score3 = clf.fit(data_train, labels_train)
+    labels_predicted= clf.predict(data_test)
+    t2=time() -t1
     
-   
+    if(show_infos == True):
+        print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
+        print "classification report"
+        print classification_report(labels_test, labels_predicted)
+        print "the accuracy score on the test data is :", accuracy_score(labels_test, labels_predicted)
+        scores = cross_validation.cross_val_score(clf, data_train, labels_train, cv=5)
+        print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
     
 #%%
 from sklearn.base import BaseEstimator, TransformerMixin
