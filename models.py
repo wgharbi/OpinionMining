@@ -161,7 +161,7 @@ class NBmatrix(BaseEstimator, TransformerMixin):
         q = q.multiply(1/norm_q)
         print q.toarray()
         
-        ratio = sp.csr_matrix(np.log((p.multiply(q.power(-1.0))).data))
+        ratio = sp.csr_matrix(np.log((p.multiply(sp.csr_matrix(np.expand_dims(q.toarray()[0]**(-1),axis=0)))).data))
         print ratio.toarray()
         
         #We need now to recompute "f", our binarized word counter
