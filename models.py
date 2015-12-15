@@ -157,13 +157,10 @@ class NBmatrix(BaseEstimator, TransformerMixin):
         self.alpha = alpha
         self.bina = bina
         self.n_jobs = 1
+        self.r = []
 
     def fit(self, X, y):
-        return self
-
-    def transform(self, X,y):
         alpha = self.alpha
-        bina = self.bina
         nb_doc, voc_length = X.shape
         pos_idx=[y==1][0].astype(int)
         neg_idx=[y==0][0].astype(int)
@@ -183,16 +180,22 @@ class NBmatrix(BaseEstimator, TransformerMixin):
         
         ratio = sp.csr_matrix(np.log((p.multiply(sp.csr_matrix(np.expand_dims(q.toarray()[0]**(-1),axis=0)))).data))
         print ratio.toarray()
+        self.r = ratio #Stock the ratio vector to re-use it for transforming unlablled data
+        return self
+
+    def transform(self, X,y):
         
-        #We need now to recompute "f", our binarized word counter
-        if(bina == True):
+        
+        #If the binarize option is set to true, we need now to recompute "f", our binarized word counter
+        if(self.bina == True):
             f_hat = binarize(X, threshold = 0.0)
         else :
             f_hat=X
         
-        f_tilde = f_hat.multiply(ratio)
+        f_tilde = f_hat.multiply(self.r)
         return f_tilde
     
     def fit_transform(self, X, y):
+        self.fit(X,y)
         return self.transform(X,y)
 
