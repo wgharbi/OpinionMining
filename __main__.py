@@ -38,7 +38,7 @@ train = ct.removehtml(data)
 data=ct.stemTokenize(train)  
 
 #Compute tf-idf including n_grams of size 2 
-tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,1), binary=False)
+tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,2), binary=False)
 
 #Compute a count_vectorizer including n_grams of size 2
 count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
@@ -57,7 +57,9 @@ print "size of the matrix : ", tfidf_matrix.shape
 #define test set and traing set
 data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42)
 data_train2, data_test2, labels_train2, labels_test2 = train_test_split(count_matrix, labels, test_size = 0.4, random_state  =42)
-data_train2=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
+from models import NBmatrix
+
+data_train2=ct.NBmatrix(data_train2,labels_train2,alpha=1)
 #Fix the number of models to train 
 
 model_names=[]
