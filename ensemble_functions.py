@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Dec 15 14:59:27 2015
 
-@author: ivaylo
-"""
 
 import re
 import numpy as np

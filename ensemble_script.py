@@ -5,7 +5,7 @@ Created on Tue Dec 15 15:00:52 2015
 @author: ivaylo
 """
 
-from functions import *
+from ensemble_functions import *
 
 ############################# Parameters ######################################
 
@@ -50,7 +50,7 @@ all_train_cleaned = tfv.transform(all_train_cleaned)
 
 # Split Train/Test
 data_train, data_test, labels_train, labels_test, new_mat_train, new_mat_test = train_test_split(all_train_cleaned, Class, new_mat, test_size = 0.4, random_state  =42)
-
+    
 # Feature Selection
 chi = SelectKBest(chi2,k=k_best_nb)
 data_train = chi.fit_transform(data_train,labels_train)

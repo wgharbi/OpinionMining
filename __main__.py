@@ -21,14 +21,16 @@ import numpy as np
 
 #%% Pre-process the data
 data, labels = lf.loadLabeled("./train")
-#l contains the length of each review
-l = ct.computelength(data)
-up = ct.computeUpperCase(data)
-exc = countexclamation(data)
-ques = countquestionmark(data)
-X = np.array([l,up,exc,ques])
 
-X= X_T
+
+#l = ct.computelength(data)
+#up = ct.computeUpperCase(data)
+#exc = countexclamation(data)
+#ques = countquestionmark(data)
+#X = np.array([l,up,exc,ques])
+
+#X= X_T
+
 #Remove html tags
 train = ct.removehtml(data)
 
@@ -37,7 +39,6 @@ data=ct.stemTokenize(train)
 
 #Compute tf-idf including n_grams of size 2 
 tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,2), binary=False)
-#HUGO : j'ai testé avec une tf-idf "binarisée" pour voir si cela permettait une ammélioration du score, ce qui n'est pas le cas
 
 #Compute a count_vectorizer including n_grams of size 2
 count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
@@ -46,7 +47,7 @@ count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
 tfidf_matrix = tfidf_vectorizer.fit_transform(data)
 #count_matrix = count_vect.fit_transform(data)
 
-#tfidf_matrix = tfidf_matrix.toarray()
+
 print "size of the matrix : ", tfidf_matrix.shape
 
 
@@ -83,9 +84,6 @@ labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 #%% Fit 4th model : NBSVM
 from sklearn.svm import LinearSVC
 model_names.append("NBSVM")
-
-#HUGO : la partie "interpolation" grâce au paramètre beta n'est pas encore implémentée
-#Du coup ici c'est comme si on entraine avec beta=1
 
 t1 = time()
 clf4 = LinearSVC(C=1)

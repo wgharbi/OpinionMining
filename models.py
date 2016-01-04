@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Dec 06 15:45:44 2015
 
-@author: Hugo
-"""
 
 from time import time
 from sklearn.metrics import classification_report
@@ -21,7 +17,7 @@ def naiveBayes(data_train,labels_train,data_test,labels_test,show_infos):
     t1=time() -t0
     
     if(show_infos == True):
-        print "-------------------Vectorizing and fitting the model took %s"%t1,"sec---------------"
+        print "-------------------Vectorizing and fitting the MultinomialNB took %s"%t1,"sec---------------"
         print ""
         print "classification report :"
         print classification_report(labels_test, labels_predicted)
@@ -113,7 +109,7 @@ def StochasGD(data_train,labels_train,data_test,labels_test,show_infos):
     t2=time() -t1
     
     if(show_infos == True):
-        print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
+        print "-------------------Vectorizing and fitting SGD took %s"%t2,"sec---------------"
         print "classification report"
         print classification_report(labels_test, labels_predicted)
         print "the accuracy score on the test data is :", accuracy_score(labels_test, labels_predicted)
@@ -136,7 +132,7 @@ def RandomNbSGD(data_train,labels_train,data_test,labels_test,show_infos,n_estim
     t2=time() -t1
     
     if(show_infos == True):
-        print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
+        print "-------------------Vectorizing and fitting the SGD with a modified_huber loss took %s"%t2,"sec---------------"
         print "classification report"
         print classification_report(labels_test, labels_predicted)
         print "the accuracy score on the test data is :", accuracy_score(labels_test, labels_predicted)
