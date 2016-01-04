@@ -41,7 +41,7 @@ print "number of documents %s"%num_documents
 
 
 
-tfidf_vect = TfidfVectorizer(ngram_range=(1,2), binary=False,analyzer = "word",lowercase= True,norm=None)
+tfidf_vect = TfidfVectorizer( binary=False,analyzer = "word",lowercase= True,norm=None)
 features = tfidf_vect.fit_transform(data)
 unique_words = list(set(tfidf_vect.vocabulary_.keys()))
 print("Unique words:"+str(len(unique_words)))

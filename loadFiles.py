@@ -1,6 +1,6 @@
 import os
 import numpy as np
-#assumes labelled data ra stored into a positive and negative folder
+#assumes labelled data are stored into a positive and negative folder
 #returns two lists one with the text per file and another with the corresponding class 
 def loadLabeled(path):
 
