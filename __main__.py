@@ -45,7 +45,7 @@ count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
 
 
 tfidf_matrix = tfidf_vectorizer.fit_transform(data)
-#count_matrix = count_vect.fit_transform(data)
+count_matrix = count_vect.fit_transform(data)
 
 
 print "size of the matrix : ", tfidf_matrix.shape
