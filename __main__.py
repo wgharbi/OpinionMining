@@ -34,7 +34,7 @@ data, labels = lf.loadLabeled("./train")
 #Remove html tags
 train = ct.removehtml(data)
 
-#Create the dictionnary
+#Create the dictionnary (WARNING nltk should be up-to-date)
 data=ct.stemTokenize(train)  
 
 #Compute tf-idf including n_grams of size 2 
@@ -56,10 +56,18 @@ print "size of the matrix : ", tfidf_matrix.shape
 
 #define test set and traing set
 data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42)
-data_train2, data_test2, labels_train2, labels_test2 = train_test_split(count_matrix, labels, test_size = 0.4, random_state  =42)
-from models import NBmatrix
 
-data_train2=ct.NBmatrix(data_train2,labels_train2,alpha=1)
+
+#Here we make a pre-processing on the count matrix to get the NB matrix used further for NBSVM classifier
+from models import NBmatrix
+nb_vectorizer = NBmatrix(alpha = 1.0 ,bina = True, n_jobs = 1)
+nb_matrix = nb_vectorizer.fit_transform(count_matrix,labels)
+
+#We use the same random state so that the split will be the same as on the train/test before
+data_train2, data_test2, labels_train2, labels_test2 = train_test_split(nb_matrix, labels, test_size = 0.4, random_state  =42)
+
+
+
 #Fix the number of models to train 
 
 model_names=[]
@@ -68,38 +76,40 @@ labels_predicted = np.expand_dims(np.zeros(len(labels_test)),axis=1)
 #%% Fit models
 from models import naiveBayes
 model_names.append("MultinomialNB")
-prediction = np.expand_dims(naiveBayes(data_train,labels_train,data_test,labels_test,show_infos=True),axis=1)
-labels_predicted=np.append(labels_predicted, prediction ,axis=1)
+prediction1 = np.expand_dims(naiveBayes(data_train,labels_train,data_test,labels_test,show_infos=True),axis=1)
+labels_predicted=np.append(labels_predicted, prediction1 ,axis=1)
 
 from models import svc
 model_names.append("LinearSVC")
-prediction = np.expand_dims(svc(data_train,labels_train,data_test,labels_test,C=1,show_infos=True),axis=1)
-labels_predicted=np.append(labels_predicted, prediction ,axis=1)
+prediction2 = np.expand_dims(svc(data_train,labels_train,data_test,labels_test,C=1,show_infos=True),axis=1)
+labels_predicted=np.append(labels_predicted, prediction2 ,axis=1)
 
 from models import logRegression
 model_names.append("logRegression")
-prediction = np.expand_dims(logRegression(data_train,labels_train,data_test,labels_test,show_infos=True),axis=1)
-labels_predicted=np.append(labels_predicted, prediction ,axis=1)
+prediction3 = np.expand_dims(logRegression(data_train,labels_train,data_test,labels_test,show_infos=True),axis=1)
+labels_predicted=np.append(labels_predicted, prediction3 ,axis=1)
 
 
 
 #%% Fit 4th model : NBSVM
 from sklearn.svm import LinearSVC
+from models import NBmatrix
+
 model_names.append("NBSVM")
 
 t1 = time()
+
 clf4 = LinearSVC(C=1)
-data_train2_transformed=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
-y_score4 = clf4.fit(data_train2_transformed, labels_train2)
-prediction = np.expand_dims(clf4.predict(data_test2),axis=1)
-labels_predicted=np.append(labels_predicted, prediction ,axis=1)
+y_score4 = clf4.fit(data_train2, labels_train2)
+prediction4 = np.expand_dims(clf4.predict(data_test2),axis=1)
+labels_predicted=np.append(labels_predicted, prediction4 ,axis=1)
 t2=time() -t1
 print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
 print "classification report"
 print classification_report(labels_test2, prediction)
 print "the accuracy score is :", accuracy_score(labels_test2, prediction)
 
-
+labels_predicted=labels_predicted[:,1:] #Remove the first column (initialization)
 #%%Compute the ROC curve of all models learnt
 """
 compute the roc curve and the area under curve 
@@ -110,7 +120,7 @@ from sklearn.metrics import roc_curve, auc
 fpr = dict()
 tpr = dict()
 roc_auc = dict()
-labels_predicted=labels_predicted[:,1:]
+
 nb_models = labels_predicted.shape[1]
 for i in range(nb_models) :
     fpr[i], tpr[i], _ = roc_curve(labels_test, labels_predicted[:,i])

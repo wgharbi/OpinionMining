@@ -168,18 +168,18 @@ class NBmatrix(BaseEstimator, TransformerMixin):
         p = (alpha_vec + pos_idx.dot(X)) 
         norm_p = p.sum()
         p = p.multiply(1/norm_p)
-        print p.toarray()
+        #print p.toarray()
         q = (alpha_vec + neg_idx.dot(X))
         norm_q = q.sum()
         q = q.multiply(1/norm_q)
-        print q.toarray()
+        #print q.toarray()
         
         ratio = sp.csr_matrix(np.log((p.multiply(sp.csr_matrix(np.expand_dims(q.toarray()[0]**(-1),axis=0)))).data))
-        print ratio.toarray()
+        #print ratio.toarray()
         self.r = ratio #Stock the ratio vector to re-use it for transforming unlablled data
         return self
 
-    def transform(self, X,y):
+    def transform(self, X):
         
         
         #If the binarize option is set to true, we need now to recompute "f", our binarized word counter

@@ -6,7 +6,7 @@ Created on Wed Dec 16 13:22:09 2015
 """
 
 from ensemble_functions import *
-from models import NBmatrix2
+from models import NBmatrix
 
 ############################# Parameters ######################################
 
@@ -37,7 +37,7 @@ n_component_list = range(1,4)
 # Test ratios
 layer1_ratio = 0.4
 # CrossVal number
-cv_nb = 5
+cv_nb = 1
 # Random State for split
 rand_state = list(np.random.randint(0,100,cv_nb))
 
@@ -84,7 +84,7 @@ for rand_st in rand_state:
     
     
     # Nbmatrix
-    nbmat = NBmatrix2(1.0,bina=True,n_jobs=1)
+    nbmat = NBmatrix(1.0,bina=True,n_jobs=1)
     nbmat.fit(count_matrix,labels_train)
     nbm_test = nbmat.transform(count_test)
     nbm_data = nbmat.transform(count_matrix)
