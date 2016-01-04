@@ -120,7 +120,7 @@ def nbsvmMatrix(data,labels,alpha):
     
     return f_tilde
     
-#Calculates 
+
     
 
     
