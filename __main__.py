@@ -84,9 +84,6 @@ labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 from sklearn.svm import LinearSVC
 model_names.append("NBSVM")
 
-#HUGO : la partie "interpolation" grâce au paramètre beta n'est pas encore implémentée
-#Du coup ici c'est comme si on entraine avec beta=1
-
 t1 = time()
 clf4 = LinearSVC(C=1)
 data_train2_transformed=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)

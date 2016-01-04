@@ -27,6 +27,8 @@ import loadFiles as lf
 
 #%% Load the data and compute alternative features
 data, labels = lf.loadLabeled("./train")
+
+"""
 #l contains the length of each review
 l = sp.computelength(data)
 l = sp.csr_matrix(l)
@@ -43,7 +45,7 @@ ex = sp.csr_matrix(ex)
 #Count question marks
 qu = sp.countquestionmark(data)
 qu = sp.csr_matrix(qu)
-
+"""
 
 #%%Pre process
 
@@ -63,17 +65,24 @@ count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
 
 tfidf_matrix = tfidf_vectorizer.fit_transform(data)
 count_matrix = count_vect.fit_transform(data)
-nbsvm_matrix = ct.nbsvmMatrix(count_matrix,labels,alpha=1)
+nbsvm_matrix = ct.nbsvmMatrix(count_matrix,labels,alpha=0.1)
 #tfidf_matrix = tfidf_matrix.toarray()
 print "size of the matrix : ", tfidf_matrix.shape
 
 
+#%% Feature Selection 
+feature_names = tfidf_vectorizer.get_feature_names()
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+ch2 = SelectKBest(chi2, k=50000)
 
-
+X_new = ch2.fit_transform(tfidf_matrix, labels)
+feature_names = [feature_names[i] for i in ch2.get_support(indices=True)]
+tfidf_matrix2 = X_new
 #%% Start training parameters
 
 #define test set and traing set
-data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42)
+data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix2, labels, test_size = 0.4, random_state  =42)
 data_train2, data_test2, labels_train2, labels_test2 = train_test_split(nbsvm_matrix, labels, test_size = 0.4, random_state  =42)
 
 #Fix the number of models to train 
@@ -102,20 +111,22 @@ labels_predicted=np.append(labels_predicted, prediction ,axis=1)
 #%% Fit 4th model : NBSVM
 from sklearn.svm import LinearSVC
 model_names.append("NBSVM")
+t1 = time()
+clf4 = LinearSVC(C=1)
+data_train2_transformed=ct.nbsvmMatrix(data_train2,labels_train2,alpha=1)
+y_score4 = clf4.fit(data_train2_transformed, labels_train2)
+prediction = np.expand_dims(clf4.predict(data_test2),axis=1)
+labels_predicted=np.append(labels_predicted, prediction ,axis=1)
+t2=time() -t1
+print "-------------------Vectorizing and fitting the NBSVM took %s"%t2,"sec---------------"
+print "classification report"
+print classification_report(labels_test2, prediction)
+print "the accuracy score is :", accuracy_score(labels_test2, prediction)
 
 #HUGO : la partie "interpolation" grâce au paramètre beta n'est pas encore implémentée
 #Du coup ici c'est comme si on entraine avec beta=1
 
-t1 = time()
-clf4 = LinearSVC(C=1)
-y_score4 = clf4.fit(data_train2, labels_train2)
-prediction = np.expand_dims(clf4.predict(data_test2),axis=1)
-labels_predicted=np.append(labels_predicted, prediction ,axis=1)
-t2=time() -t1
-print "-------------------Vectorizing and fitting the Log-reg took %s"%t2,"sec---------------"
-print "classification report"
-print classification_report(labels_test2, prediction)
-print "the accuracy score is :", accuracy_score(labels_test2, prediction)
+
 
 
 #%%Compute the ROC curve of all models learnt
