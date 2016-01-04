@@ -6,6 +6,7 @@ import cleantext as ct
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from models import NBmatrix
 
 #Models librairies
 from sklearn.linear_model import SGDClassifier
@@ -41,14 +42,23 @@ data=ct.stemTokenize(train)
 tfidf_vectorizer = TfidfVectorizer(ngram_range=(1,2), binary=False)
 
 #Compute a count_vectorizer including n_grams of size 2
-count_vect = CountVectorizer(ngram_range=(1,2),binary=False)
+count_vectorizer = CountVectorizer(ngram_range=(1,2),binary=False)
 
+#Comptute a NB matrix as describe by Wang & Manning
+nb_vectorizer = NBmatrix(alpha = 1.0 ,bina = True, n_jobs = 1)
 
+#Fit transform on the data
 tfidf_matrix = tfidf_vectorizer.fit_transform(data)
-count_matrix = count_vect.fit_transform(data)
-
+count_matrix = count_vectorizer.fit_transform(data)
+nb_matrix = nb_vectorizer.fit_transform(count_matrix,labels)
 
 print "size of the matrix : ", tfidf_matrix.shape
+average_nb_words = np.mean(count_matrix.sum(axis=1))
+print "Average number of words per review : ", average_nb_words
+dic_size = count_matrix.shape[1]
+print "dictionnary size : " , dic_size
+sparsity = 1-float(count_matrix.nnz)/(25000.0*dic_size)
+print "Sparsity of the data : ", sparsity
 
 
 
@@ -57,11 +67,6 @@ print "size of the matrix : ", tfidf_matrix.shape
 #define test set and traing set
 data_train, data_test, labels_train, labels_test = train_test_split(tfidf_matrix, labels, test_size = 0.4, random_state  =42)
 
-
-#Here we make a pre-processing on the count matrix to get the NB matrix used further for NBSVM classifier
-from models import NBmatrix
-nb_vectorizer = NBmatrix(alpha = 1.0 ,bina = True, n_jobs = 1)
-nb_matrix = nb_vectorizer.fit_transform(count_matrix,labels)
 
 #We use the same random state so that the split will be the same as on the train/test before
 data_train2, data_test2, labels_train2, labels_test2 = train_test_split(nb_matrix, labels, test_size = 0.4, random_state  =42)
